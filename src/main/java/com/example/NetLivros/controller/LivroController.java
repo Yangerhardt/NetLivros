@@ -41,17 +41,17 @@ public class LivroController {
         return LivroService.findByGenero(genero);
     }
 
-    @PostMapping
-    public ResponseEntity<Livro> create (@RequestBody Livro livro) {
-        return LivroService.save(livro);
+    @PostMapping("/{autorId}")
+    public ResponseEntity<Livro> create (@PathVariable Long autorId, @RequestBody Livro livro) {
+        return LivroService.save(autorId, livro);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/id/{id}")
     public ResponseEntity<Livro> update (@PathVariable Long id, @RequestBody Livro livro) {
         return LivroService.update(id, livro);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete (@PathVariable Long id) {
         return LivroService.delete(id);
     }

@@ -1,5 +1,6 @@
 package com.example.NetLivros.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,8 @@ public class Autor {
     private Long id;
     @NotNull @NotEmpty
     private String nome;
-    @OneToMany(mappedBy = "id")
+    @JsonIgnore
+    @OneToMany(mappedBy = "autor")
     private List<Livro> livros;
+
 }

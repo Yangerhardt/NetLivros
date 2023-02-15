@@ -1,5 +1,6 @@
 package com.example.NetLivros.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public class Livro {
     private String titulo;
     @NotNull
     private Integer numeroDePaginas;
+    private Double preco;
     @NotEmpty @NotNull
     private String genero;
     @NotEmpty @NotNull
