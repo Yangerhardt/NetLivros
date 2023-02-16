@@ -1,52 +1,59 @@
 package com.example.NetLivros.service;
 
-import com.example.NetLivros.model.Autor;
-import com.example.NetLivros.repository.AutorRepository;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.NetLivros.model.Autor;
+import com.example.NetLivros.model.dto.AutorDTO;
+import com.example.NetLivros.repository.AutorRepository;
 
 @Service
 public class AutorService {
 
-    public static AutorRepository autorRepository;
+	public static AutorRepository autorRepository;
 
-    public AutorService(AutorRepository repository) {
-        AutorService.autorRepository = repository;
-    }
+	public AutorService(AutorRepository repository) {
+		AutorService.autorRepository = repository;
+	}
 
-    public static ResponseEntity<Autor> save (Autor autor) {
-        autorRepository.save(autor);
-        return ResponseEntity.ok().body(autor);
-    }
+	public static ResponseEntity<AutorDTO> save(AutorDTO autorDTO) {
+		Autor autor = new Autor();
+		BeanUtils.copyProperties(autorDTO, autor);
+		autorRepository.save(autor);
+		BeanUtils.copyProperties(autor, autorDTO);
 
-    public static List<Autor> findAll() {
-        return autorRepository.findAll();
-    }
+		return ResponseEntity.status(HttpStatus.CREATED).body(autorDTO);
+	}
 
-    public static ResponseEntity<Autor> findById(Long id) {
-        Optional<Autor> autor = autorRepository.findById(id);
-        return autor.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	public static ResponseEntity<List<AutorDTO>> findAll() {
+		List<Autor> autores = autorRepository.findAll();
+		List<AutorDTO> autoresDTO = autores.stream().map(autor -> new AutorDTO(autor)).toList();
 
-    public static ResponseEntity<Autor> update(Long id, Autor autor) {
-        Autor aut = autorRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
+		return ResponseEntity.ok().body(autoresDTO);
+	}
 
-        aut.setNome(autor.getNome());
-        aut.setLivros(autor.getLivros());
+	public static ResponseEntity<AutorDTO> findById(Long id) {
+		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
+		AutorDTO autorDTO = new AutorDTO(autor);
+		return ResponseEntity.ok().body(autorDTO);
+	}
 
-        autorRepository.save(aut);
-        return ResponseEntity.ok().body(aut);
-    }
+	public static ResponseEntity<AutorDTO> update(Long id, AutorDTO autorDTO) {
+		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
+		autor.setId(id);
+		autorRepository.save(autor);
+		autorDTO = new AutorDTO(autor);
+		return ResponseEntity.ok().body(autorDTO);
+	}
 
-    public static ResponseEntity<Autor> delete(Long id) {
-        Autor autor = autorRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
+	public static ResponseEntity<Void> delete(Long id) {
+		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
 
-        autorRepository.delete(autor);
-        return ResponseEntity.ok().build();
-    }
+		autorRepository.delete(autor);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
 }

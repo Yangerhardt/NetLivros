@@ -1,14 +1,24 @@
 package com.example.NetLivros.repository;
 
-import com.example.NetLivros.model.Livro;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.example.NetLivros.model.Livro;
+
 public interface LivroRepository extends JpaRepository<Livro, Long> {
-    Object findByAutor(String autor);
+//    Object findByAutor(String autor);
 
-    Object findByEditora(String editora);
+	List<Livro> findByAutor(String autor);
 
-    Object findByTitulo(String titulo);
+//    Object findByEditora(String editora);
+//
+//    Object findByTitulo(String titulo);
+	
+	Optional<Livro> findByTitulo(String titulo);
 
-    Object findByGenero(String genero);
+	List<Livro> findAllByGenero(String genero);
+
+	List<Livro> findAllByEditora(String genero);
 }

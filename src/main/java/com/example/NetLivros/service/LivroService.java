@@ -1,104 +1,91 @@
 package com.example.NetLivros.service;
 
-import com.example.NetLivros.model.Autor;
-import com.example.NetLivros.model.Livro;
-import com.example.NetLivros.repository.AutorRepository;
-import com.example.NetLivros.repository.LivroRepository;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.example.NetLivros.model.Autor;
+import com.example.NetLivros.model.Livro;
+import com.example.NetLivros.model.dto.LivroDTO;
+import com.example.NetLivros.repository.AutorRepository;
+import com.example.NetLivros.repository.LivroRepository;
 
 @Service
 public class LivroService {
 
-    public static LivroRepository livroRepository;
-    public static AutorRepository autorRepository;
+	public static LivroRepository livroRepository;
+	public static AutorRepository autorRepository;
 
-    public LivroService(LivroRepository livroRepository, AutorRepository autorRepository) {
-        LivroService.livroRepository = livroRepository;
-        LivroService.autorRepository = autorRepository;
-    }
+	public LivroService(LivroRepository livroRepository, AutorRepository autorRepository) {
+		LivroService.livroRepository = livroRepository;
+		LivroService.autorRepository = autorRepository;
+	}
 
-    public static ResponseEntity<Livro> save (Long autorId, Livro livro) {
-        Autor autor = autorRepository.findById(autorId).orElseThrow(() -> {
-            return new RuntimeException("Autor não encontrado");
-        });
-        livro.setAutor(autor);
+	public static ResponseEntity<LivroDTO> save(Long autorId, LivroDTO livroDTO) {
+		Autor autor = autorRepository.findById(autorId).orElseThrow(() -> new RuntimeException("Autor não encontrado"));
+		Livro livro = new Livro();
+		BeanUtils.copyProperties(livroDTO, livro);
+		livro.setAutor(autor);
 
-        livroRepository.save(livro);
-        return ResponseEntity.ok().body(livro);
-    }
+		livroRepository.save(livro);
+		BeanUtils.copyProperties(livro, livroDTO);
+		livroDTO.setAutorId(autorId);
 
-    public static ResponseEntity<Iterable<Livro>> findAll() {
-        return ResponseEntity.ok().body(livroRepository.findAll());
-    }
+		return ResponseEntity.status(HttpStatus.CREATED).body(livroDTO);
+	}
 
-    public static ResponseEntity<Livro> findById (Long id) {
-        Optional<Livro> livro = livroRepository.findById(id);
-        return livro.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	public static ResponseEntity<List<LivroDTO>> findAll() {
+		List<Livro> livros = livroRepository.findAll();
+		List<LivroDTO> livrosDTO = livros.stream().map(livro -> new LivroDTO(livro)).toList();
+		return ResponseEntity.ok().body(livrosDTO);
+	}
 
-    public static ResponseEntity<List<Object>> findByAutor (String autor) {
-        List<Object> autores = new ArrayList<>();
+	public static ResponseEntity<LivroDTO> findById(Long id) {
+		Livro livro = livroRepository.findById(id).orElseThrow(RuntimeException::new);
+		LivroDTO livroDTO = new LivroDTO(livro);
+		return ResponseEntity.ok().body(livroDTO);
+	}
 
-        livroRepository.findAll().forEach(livro -> {
-            if (livro.getGenero().equals(autores)) {
-                autores.add(livro);
-            }
-        });
+	public static ResponseEntity<List<LivroDTO>> findByAutor(String nomeAutor) {
+		Autor autor = autorRepository.findByNome(nomeAutor);
+		List<LivroDTO> livrosDTO = autor.getLivros().stream().map(livro -> new LivroDTO(livro)).toList();
+		return ResponseEntity.ok().body(livrosDTO);
+	}
 
-        return ResponseEntity.ok().body(autores);
-    }
+	public static ResponseEntity<List<LivroDTO>> findAllByGenero(String genero) {
+		List<LivroDTO> livrosDTO = livroRepository.findAllByGenero(genero).stream().map(livro -> new LivroDTO(livro))
+				.toList();
+		return ResponseEntity.ok().body(livrosDTO);
+	}
 
-    public static ResponseEntity<List<Object>> findByGenero (String genero) {
-        List<Object> generos = new ArrayList<>();
+	public static ResponseEntity<List<LivroDTO>> findByEditora(String editora) {
+		List<LivroDTO> livrosDTO = livroRepository.findAllByEditora(editora).stream().map(livro -> new LivroDTO(livro))
+				.toList();
 
-        livroRepository.findAll().forEach(livro -> {
-            if (livro.getGenero().equals(genero)) {
-                generos.add(livro);
-            }
-        });
+		return ResponseEntity.ok().body(livrosDTO);
+	}
 
-        return ResponseEntity.ok().body(generos);
-    }
+	public static ResponseEntity<LivroDTO> findByTitulo(String titulo) {
+		Livro livro = livroRepository.findByTitulo(titulo).orElseThrow(RuntimeException::new);
+		LivroDTO livroDTO = new LivroDTO(livro);
+		return ResponseEntity.ok().body(livroDTO);
+	}
 
-    public static ResponseEntity<List<Object>> findByEditora (String editora) {
-        List<Object> livros = new ArrayList<>();
+	public static ResponseEntity<LivroDTO> update(Long id, LivroDTO livroDTO) {
+		Livro livro = livroRepository.findById(id).orElseThrow(RuntimeException::new);
 
-        livroRepository.findAll().forEach(livro -> {
-            if (livro.getEditora().equals(editora)) {
-                livros.add(livro);
-            }
-        });
+		livro.setId(id);
+		livroRepository.save(livro);
+		livroDTO = new LivroDTO(livro);
 
-        return ResponseEntity.ok().body(livros);
-    }
+		return ResponseEntity.ok().body(livroDTO);
+	}
 
-    public static ResponseEntity<Object> findByTitulo (String titulo) {
-        Object livro = livroRepository.findByTitulo(titulo);
-
-        return ResponseEntity.ok().body(livro);
-    }
-
-    public static ResponseEntity<Livro> update (Long id, Livro livro) {
-        Livro novoLivro = livroRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
-
-        novoLivro.setTitulo(livro.getTitulo());
-        novoLivro.setAutor(livro.getAutor());
-        novoLivro.setGenero(livro.getGenero());
-        novoLivro.setEditora(livro.getEditora());
-        novoLivro.setNumeroDePaginas(livro.getNumeroDePaginas());
-        novoLivro.setPreco(livro.getPreco());
-
-        return ResponseEntity.ok().body(livroRepository.save(novoLivro));
-    }
-
-    public static ResponseEntity<Void> delete(Long id) {
-        livroRepository.deleteById(id);
-        return ResponseEntity.ok().build();
-    }
+	public static ResponseEntity<Void> delete(Long id) {
+		livroRepository.deleteById(id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
 }
