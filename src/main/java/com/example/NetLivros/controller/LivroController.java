@@ -1,6 +1,7 @@
 package com.example.NetLivros.controller;
 
 import com.example.NetLivros.model.Livro;
+import com.example.NetLivros.model.dto.LivroDTO;
 import com.example.NetLivros.service.LivroService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,42 +13,42 @@ import java.util.List;
 public class LivroController {
 
     @GetMapping
-    public ResponseEntity<Iterable<Livro>> read () {
+    public List<LivroDTO> read () {
         return LivroService.findAll();
     }
 
     @GetMapping("/id/{id}") // Conferir
-    public ResponseEntity<Livro> readById (@PathVariable Long id) {
+    public ResponseEntity<LivroDTO> readById (@PathVariable Long id) {
         return LivroService.findById(id);
     }
 
     @GetMapping("/titulo/{titulo}")
-    public ResponseEntity<Object> readByTitulo (@PathVariable String titulo) {
+    public ResponseEntity<LivroDTO> readByTitulo (@PathVariable String titulo) {
         return LivroService.findByTitulo(titulo);
     }
 
     @GetMapping("/autor/{autor}")
-    public ResponseEntity<List<Object>> readByAutor (@PathVariable String autor) {
+    public ResponseEntity<List<LivroDTO>> readByAutor (@PathVariable String autor) {
         return LivroService.findByAutor(autor);
     }
 
     @GetMapping("/editora/{editora}")
-    public ResponseEntity<List<Object>> readByEditora (@PathVariable String editora) {
+    public ResponseEntity<List<LivroDTO>> readByEditora (@PathVariable String editora) {
         return LivroService.findByEditora(editora);
     }
 
     @GetMapping("/genero/{genero}")
-    public ResponseEntity<List<Object>> readByGenero (@PathVariable String genero) {
+    public ResponseEntity<List<LivroDTO>> readByGenero (@PathVariable String genero) {
         return LivroService.findByGenero(genero);
     }
 
     @PostMapping("/{autorId}")
-    public ResponseEntity<Livro> create (@PathVariable Long autorId, @RequestBody Livro livro) {
+    public ResponseEntity<LivroDTO> create (@PathVariable Long autorId, @RequestBody LivroDTO livro) {
         return LivroService.save(autorId, livro);
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<Livro> update (@PathVariable Long id, @RequestBody Livro livro) {
+    public ResponseEntity<LivroDTO> update (@PathVariable Long id, @RequestBody LivroDTO livro) {
         return LivroService.update(id, livro);
     }
 

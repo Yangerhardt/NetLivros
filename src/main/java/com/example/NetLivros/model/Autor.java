@@ -1,6 +1,7 @@
 package com.example.NetLivros.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,10 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Entity
-@NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class Autor {
 
     @Id
@@ -22,7 +20,7 @@ public class Autor {
     @NotNull @NotEmpty
     private String nome;
     @JsonIgnore
-    @OneToMany(mappedBy = "autor")
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
     private List<Livro> livros;
 
 }

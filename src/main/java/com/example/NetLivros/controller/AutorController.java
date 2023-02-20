@@ -1,6 +1,7 @@
 package com.example.NetLivros.controller;
 
 import com.example.NetLivros.model.Autor;
+import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.service.AutorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,22 +14,22 @@ import java.util.List;
 public class AutorController {
 
     @GetMapping
-    public List<Autor> read() {
+    public List<AutorDTO> read() {
         return AutorService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Autor> readById(@PathVariable Long id) {
+    public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
         return AutorService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Autor> create(@RequestBody @Valid Autor autor) {
+    public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
         return AutorService.save(autor);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Autor> update(@Valid @PathVariable Long id, @RequestBody Autor autor) {
+    public ResponseEntity<AutorDTO> update(@Valid @PathVariable Long id, @RequestBody Autor autor) {
         return AutorService.update(id, autor);
     }
 

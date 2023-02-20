@@ -2,14 +2,19 @@ package com.example.NetLivros.service;
 
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.Livro;
+import com.example.NetLivros.model.dto.LivroDTO;
 import com.example.NetLivros.repository.AutorRepository;
 import com.example.NetLivros.repository.LivroRepository;
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LivroService {
@@ -22,39 +27,52 @@ public class LivroService {
         LivroService.autorRepository = autorRepository;
     }
 
-    public static ResponseEntity<Livro> save (Long autorId, Livro livro) {
+    public static ResponseEntity<LivroDTO> save (@Valid Long autorId, LivroDTO livroDTO) {
         Autor autor = autorRepository.findById(autorId).orElseThrow(() -> {
             return new RuntimeException("Autor não encontrado");
         });
+        Livro livro = new Livro();
+        BeanUtils.copyProperties(livroDTO, livro);
         livro.setAutor(autor);
-
         livroRepository.save(livro);
-        return ResponseEntity.ok().body(livro);
+
+        BeanUtils.copyProperties(livro, livroDTO);
+        livroDTO.setAutorId(autorId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(livroDTO);
     }
 
-    public static ResponseEntity<Iterable<Livro>> findAll() {
-        return ResponseEntity.ok().body(livroRepository.findAll());
+    public static List<LivroDTO> findAll() {
+        List<Livro> livros = livroRepository.findAll();
+        List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(livrosDTO).getBody();
     }
 
-    public static ResponseEntity<Livro> findById (Long id) {
-        Optional<Livro> livro = livroRepository.findById(id);
-        return livro.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public static ResponseEntity<LivroDTO> findById (Long id) {
+        Livro livro = livroRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+        LivroDTO livroDTO = new LivroDTO(livro);
+
+        return ResponseEntity.ok().body(livroDTO);
     }
 
-    public static ResponseEntity<List<Object>> findByAutor (String autor) {
-        List<Object> autores = new ArrayList<>();
+    public static ResponseEntity<List<LivroDTO>> findByAutor (String autor) {
+        List<Livro> autores = new ArrayList<>();
 
         livroRepository.findAll().forEach(livro -> {
-            if (livro.getGenero().equals(autores)) {
+            if (livro.getAutor().getNome().equals(autor)) {
                 autores.add(livro);
             }
         });
 
-        return ResponseEntity.ok().body(autores);
+        List<LivroDTO> livrosDTO = autores.stream().map(LivroDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(livrosDTO);
     }
 
-    public static ResponseEntity<List<Object>> findByGenero (String genero) {
-        List<Object> generos = new ArrayList<>();
+    public static ResponseEntity<List<LivroDTO>> findByGenero (String genero) {
+        List<Livro> generos = new ArrayList<>();
 
         livroRepository.findAll().forEach(livro -> {
             if (livro.getGenero().equals(genero)) {
@@ -62,11 +80,13 @@ public class LivroService {
             }
         });
 
-        return ResponseEntity.ok().body(generos);
+        List<LivroDTO> livrosDTO = generos.stream().map(LivroDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(livrosDTO);
     }
 
-    public static ResponseEntity<List<Object>> findByEditora (String editora) {
-        List<Object> livros = new ArrayList<>();
+    public static ResponseEntity<List<LivroDTO>> findByEditora (String editora) {
+        List<Livro> livros = new ArrayList<>();
 
         livroRepository.findAll().forEach(livro -> {
             if (livro.getEditora().equals(editora)) {
@@ -74,31 +94,50 @@ public class LivroService {
             }
         });
 
-        return ResponseEntity.ok().body(livros);
+        List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(livrosDTO);
     }
 
-    public static ResponseEntity<Object> findByTitulo (String titulo) {
-        Object livro = livroRepository.findByTitulo(titulo);
-
-        return ResponseEntity.ok().body(livro);
-    }
-
-    public static ResponseEntity<Livro> update (Long id, Livro livro) {
-        Livro novoLivro = livroRepository.findById(id)
+    public static ResponseEntity<LivroDTO> findByTitulo (String titulo) {
+        Livro livro = livroRepository.findByTitulo(titulo)
                 .orElseThrow(RuntimeException::new);
 
-        novoLivro.setTitulo(livro.getTitulo());
-        novoLivro.setAutor(livro.getAutor());
-        novoLivro.setGenero(livro.getGenero());
-        novoLivro.setEditora(livro.getEditora());
-        novoLivro.setNumeroDePaginas(livro.getNumeroDePaginas());
-        novoLivro.setPreco(livro.getPreco());
+        LivroDTO livroDTO = new LivroDTO(livro);
 
-        return ResponseEntity.ok().body(livroRepository.save(novoLivro));
+        return ResponseEntity.ok().body(livroDTO);
+    }
+
+    public static ResponseEntity<List<LivroDTO>> findByPreco (Double preco) {
+        List<Livro> livros = new ArrayList<>();
+
+        livroRepository.findAll().forEach(livro -> {
+            if (livro.getPreco() >= preco) {
+                livros.add(livro);
+            }
+        });
+
+        List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(livrosDTO);
+    }
+
+    public static ResponseEntity<LivroDTO> update (Long id, LivroDTO livroDTO) {
+        Livro livro = livroRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        LivroDTO novoLivroDTO = new LivroDTO(livro);
+
+        BeanUtils.copyProperties(livroDTO, novoLivroDTO);
+        BeanUtils.copyProperties(novoLivroDTO, livro);
+        livroRepository.save(livro);
+        BeanUtils.copyProperties(livro, livroDTO);
+
+        return ResponseEntity.ok().body(livroDTO);
     }
 
     public static ResponseEntity<Void> delete(Long id) {
         livroRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
