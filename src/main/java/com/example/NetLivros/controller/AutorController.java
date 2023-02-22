@@ -21,28 +21,36 @@ import com.example.NetLivros.service.AutorService;
 @RequestMapping("/api/autores")
 public class AutorController {
 
-    @GetMapping
+	private final AutorService service;
+	
+	
+	
+    public AutorController(AutorService service) {
+		this.service = service;
+	}
+
+	@GetMapping
     public ResponseEntity<List<AutorDTO>> read() {
-        return AutorService.findAll();
+        return service.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
-        return AutorService.findById(id);
+        return service.findById(id);
     }
 
     @PostMapping
     public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
-        return AutorService.save(autor);
+        return service.save(autor);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AutorDTO> update(@Valid @PathVariable Long id, @RequestBody AutorDTO autor) {
-        return AutorService.update(id, autor);
+        return service.update(id, autor);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return AutorService.delete(id);
+        return service.delete(id);
     }
 }

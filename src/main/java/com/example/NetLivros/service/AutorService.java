@@ -2,11 +2,11 @@ package com.example.NetLivros.service;
 
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.NetLivros.mapper.AutorMapper;
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.repository.AutorRepository;
@@ -14,43 +14,44 @@ import com.example.NetLivros.repository.AutorRepository;
 @Service
 public class AutorService {
 
-	public static AutorRepository autorRepository;
+	private final AutorRepository autorRepository;
+	private final AutorMapper mapper;
 
-	public AutorService(AutorRepository repository) {
-		AutorService.autorRepository = repository;
+	
+	public AutorService(AutorRepository autorRepository, AutorMapper mapper) {
+		this.autorRepository = autorRepository;
+		this.mapper = mapper;
 	}
 
-	public static ResponseEntity<AutorDTO> save(AutorDTO autorDTO) {
-		Autor autor = new Autor();
-		BeanUtils.copyProperties(autorDTO, autor);
+	public ResponseEntity<AutorDTO> save(AutorDTO autorDTO) {
+		Autor autor = mapper.toAutor(autorDTO);
 		autorRepository.save(autor);
-		BeanUtils.copyProperties(autor, autorDTO);
-
+		autorDTO = mapper.toAutorDTO(autor);
 		return ResponseEntity.status(HttpStatus.CREATED).body(autorDTO);
 	}
 
-	public static ResponseEntity<List<AutorDTO>> findAll() {
+	public ResponseEntity<List<AutorDTO>> findAll() {
 		List<Autor> autores = autorRepository.findAll();
-		List<AutorDTO> autoresDTO = autores.stream().map(autor -> new AutorDTO(autor)).toList();
+		List<AutorDTO> autoresDTO = mapper.toAutorDTOList(autores);
 
 		return ResponseEntity.ok().body(autoresDTO);
 	}
 
-	public static ResponseEntity<AutorDTO> findById(Long id) {
+	public ResponseEntity<AutorDTO> findById(Long id) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
-		AutorDTO autorDTO = new AutorDTO(autor);
+		AutorDTO autorDTO = mapper.toAutorDTO(autor);
 		return ResponseEntity.ok().body(autorDTO);
 	}
 
-	public static ResponseEntity<AutorDTO> update(Long id, AutorDTO autorDTO) {
+	public ResponseEntity<AutorDTO> update(Long id, AutorDTO autorDTO) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
-		autor.setId(id);
+		autorDTO.setId(id);
+		autor = mapper.toAutor(autorDTO);
 		autorRepository.save(autor);
-		autorDTO = new AutorDTO(autor);
 		return ResponseEntity.ok().body(autorDTO);
 	}
 
-	public static ResponseEntity<Void> delete(Long id) {
+	public ResponseEntity<Void> delete(Long id) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
 
 		autorRepository.delete(autor);

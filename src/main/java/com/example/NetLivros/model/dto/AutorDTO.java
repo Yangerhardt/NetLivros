@@ -11,8 +11,6 @@ import com.example.NetLivros.model.Autor;
 
 public class AutorDTO {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	@NotBlank
 	private String nome;

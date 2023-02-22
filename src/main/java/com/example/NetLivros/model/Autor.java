@@ -2,8 +2,10 @@ package com.example.NetLivros.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,7 +26,7 @@ public class Autor {
 	private Long id;
 	@Column(length = 50, nullable = false, unique = true)
 	private String nome;
-	@OneToMany(mappedBy = "autor")
+	@OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Livro> livros;
 
 	

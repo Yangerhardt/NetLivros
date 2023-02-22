@@ -30,11 +30,7 @@ public class LivroDTO {
 	@NotNull
 	private Long autorId;
 
-	public LivroDTO() {
-	}
-
 	public LivroDTO(Livro livro) {
-		super();
 		this.id = livro.getId();
 		this.titulo = livro.getTitulo();
 		this.numeroDePaginas = livro.getNumeroDePaginas();
