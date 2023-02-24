@@ -4,6 +4,7 @@ import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.repository.AutorRepository;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class AutorService {
         autorRepository.save(autor);
         BeanUtils.copyProperties(autor, autorDTO);
 
-        return ResponseEntity.ok().body(autorDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(autorDTO);
     }
 
     public static List<AutorDTO> findAll() {
@@ -43,7 +44,6 @@ public class AutorService {
 
         AutorDTO autorDTO = new AutorDTO(autor);
         return ResponseEntity.ok().body(autorDTO);
-
     }
 
     public static ResponseEntity<AutorDTO> update(Long id, Autor autor) {
