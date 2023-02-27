@@ -131,11 +131,14 @@ public class LivroService {
                 .orElseThrow(RuntimeException::new);
 
         LivroDTO novoLivroDTO = new LivroDTO(livro);
+        livro.setId(novoLivroDTO.getId());
+        livro.setTitulo(livroDTO.getTitulo());
+        livro.setGenero(livroDTO.getGenero());
+        livro.setEditora(livroDTO.getEditora());
+        livro.setPreco(livroDTO.getPreco());
+        livro.setNumeroDePaginas(livroDTO.getNumeroDePaginas());
 
-        BeanUtils.copyProperties(livroDTO, novoLivroDTO);
-        BeanUtils.copyProperties(novoLivroDTO, livro);
         livroRepository.save(livro);
-        BeanUtils.copyProperties(livro, livroDTO);
 
         return ResponseEntity.ok().body(livroDTO);
     }

@@ -32,11 +32,12 @@ public class Livro {
     @ManyToOne
     private Autor autor;
 
-    public Livro(String titulo, Integer numeroDePaginas, Double preco, String genero, String editora) {
+    public Livro(String titulo, Integer numeroDePaginas, Double preco, String genero, String editora, Autor autor) {
         this.titulo = titulo;
         this.numeroDePaginas = numeroDePaginas;
         this.preco = preco;
         this.genero = genero;
         this.editora = editora;
+        this.autor = autor;
     }
 }

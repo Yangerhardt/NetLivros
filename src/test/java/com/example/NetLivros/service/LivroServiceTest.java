@@ -35,6 +35,12 @@ class LivroServiceTest {
         AutorService autorService = new AutorService(autorRepository);
     }
 
+    @Test
+    void deveriaRetornarExceptionQuandoNaoEncontrarIdDoUsuario() {
+        Mockito.when(livroRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> LivroService.findById(Mockito.any()));
+    }
 
     @Test
     void deveriaCadastrarUmNovoLivroNoBancoDeDados() {
@@ -191,13 +197,14 @@ class LivroServiceTest {
         assertTrue(livrosDTO.isEmpty());
     }
 
-    @Test // Talvez o teste esteja certo,  mas o Service ainda não.
+    @Test
     void deveriaAtualizarUmLivroNoBancoDeDados() {
         Livro livro = livro();
         Livro novoLivro = new Livro(
-                "Novo Teste", 140, 15.5, "Novo Genero", "Nova Editora");
+                "Novo Teste", 140, 15.5, "Novo Genero", "Nova Editora", autor());
         LivroDTO novoDTO = new LivroDTO(novoLivro);
 
+        Mockito.when(livroRepository.findById(Mockito.any())).thenReturn(Optional.of(livro));
         Mockito.when(livroRepository.save(Mockito.any())).thenReturn(livro);
         ResponseEntity<LivroDTO> atualizarLivro = LivroService.update(1L, novoDTO);
 
