@@ -23,4 +23,11 @@ public class Autor {
     @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
     private List<Livro> livros;
 
+    public Autor() {
+    }
+
+    public Autor(String nome) {
+        this.nome = nome;
+    }
+
 }

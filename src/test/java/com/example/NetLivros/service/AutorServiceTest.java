@@ -27,9 +27,6 @@ class AutorServiceTest {
     @Mock
     private Autor autor;
 
-    @Captor
-    private ArgumentCaptor<Autor> autorCaptor;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -37,7 +34,14 @@ class AutorServiceTest {
     }
 
     @Test
-    void deveriaSalvarUmNovoAutorNoBancoDeDados() {
+    void deveriaRetornarUmaExcecaoQuandoOIdNaoExistir() {
+        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> service.findById(Mockito.any()));
+
+    }
+
+    @Test
+    void deveriaCadastrarUmNovoAutorNoBancoDeDados() {
         Mockito.when(repository.save(Mockito.any())).thenReturn(autor);
         ResponseEntity<AutorDTO> autor = service.save(dto);
         assertNotNull(autor);
@@ -58,27 +62,42 @@ class AutorServiceTest {
         assertTrue(all.isEmpty());
     }
 
-//    @Test
-//    void findById() {
-//        Autor autor = autor();
-//
-//        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(autor));
-//        ResponseEntity<AutorDTO> autorById = service.findById(Mockito.any());
-//        assertNotNull(autorById);
-//        assertEquals(autor, autorById);
-//    }
-
     @Test
-    void update() {
+    void deveriaRetornarUmAutorEspecificoQueFoiPassadoComoParametroDeId() {
+        Autor autor = autor();
+
+        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
+        ResponseEntity<AutorDTO> autorById = service.findById(1L);
+        assertNotNull(autorById);
+        assertEquals(HttpStatus.OK, autorById.getStatusCode());
+        assertEquals("Test", autorById.getBody().getNome());
     }
 
     @Test
-    void delete() {
+    void deveriaAtualizarUmAutorNoBancoDeDados() {
+        Autor autor = autor();
+        Autor novoAutor = new Autor("Novo");
+
+        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
+        ResponseEntity<AutorDTO> update = AutorService.update(1L, novoAutor);
+        assertNotNull(update);
+        assertEquals(HttpStatus.OK, update.getStatusCode());
+        assertEquals("Novo", update.getBody().getNome());
+    }
+
+    @Test
+    void deveriaDeletarUmAutor() {
+        Autor autor = autor();
+
+        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
+        ResponseEntity<Autor> delete = service.delete(1L);
+        assertNotNull(delete);
+        assertEquals(HttpStatus.NO_CONTENT, delete.getStatusCode());
     }
 
     private List<Autor> autores() {
        List<Autor> autores = new ArrayList<>();
-       autores.add(autor);
+       autores.add(autor());
        return autores;
     }
 

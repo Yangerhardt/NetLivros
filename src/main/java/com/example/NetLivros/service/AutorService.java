@@ -61,6 +61,6 @@ public class AutorService {
                 .orElseThrow(RuntimeException::new);
 
         autorRepository.delete(autor);
-        return ResponseEntity.ok().body(autor);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

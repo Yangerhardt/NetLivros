@@ -23,6 +23,8 @@ public class AutorDTO {
     public AutorDTO(Autor autor) {
         this.id = autor.getId();
         this.nome = autor.getNome();
-        this.livrosDTO = autor.getLivros().stream().map(LivroDTO::new).collect(Collectors.toList());
+        this.livrosDTO = (autor.getLivros() != null)
+            ? autor.getLivros().stream().map(LivroDTO::new).collect(Collectors.toList())
+            : null;
     }
 }
