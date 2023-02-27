@@ -55,6 +55,9 @@ class AutorServiceTest {
         List<AutorDTO> all = service.findAll();
 
         assertFalse(all.isEmpty());
+        assertEquals(1, all.size());
+        assertEquals("Test", all.get(0).getNome());
+
     }
     @Test
     void deveriaRetornarVazioQuandoNaoHaAutoresCadastrados() {

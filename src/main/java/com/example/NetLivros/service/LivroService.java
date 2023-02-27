@@ -111,11 +111,15 @@ public class LivroService {
     public static ResponseEntity<List<LivroDTO>> findByPreco (Double preco) {
         List<Livro> livros = new ArrayList<>();
 
-        livroRepository.findAll().forEach(livro -> {
-            if (livro.getPreco() >= preco) {
-                livros.add(livro);
-            }
-        });
+        try {
+            livroRepository.findAll().forEach(livro -> {
+                if (livro.getPreco() <= preco) {
+                    livros.add(livro);
+                }
+            });
+        } catch (Exception e) {
+
+        }
 
         List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
 
