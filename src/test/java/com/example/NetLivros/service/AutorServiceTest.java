@@ -22,10 +22,6 @@ class AutorServiceTest {
 
     @Mock
     private AutorRepository repository;
-    @Mock
-    private AutorDTO dto;
-    @Mock
-    private Autor autor;
 
     @BeforeEach
     void setUp() {
@@ -37,15 +33,18 @@ class AutorServiceTest {
     void deveriaRetornarUmaExcecaoQuandoOIdNaoExistir() {
         Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.empty());
         assertThrows(RuntimeException.class, () -> service.findById(Mockito.any()));
-
     }
 
     @Test
     void deveriaCadastrarUmNovoAutorNoBancoDeDados() {
+        Autor autor = autor();
+        AutorDTO autorDTO = new AutorDTO(autor);
+
         Mockito.when(repository.save(Mockito.any())).thenReturn(autor);
-        ResponseEntity<AutorDTO> autor = service.save(dto);
+        ResponseEntity<AutorDTO> dto = service.save(autorDTO);
         assertNotNull(autor);
-        assertEquals(HttpStatus.CREATED, autor.getStatusCode());
+        assertEquals(HttpStatus.CREATED, dto.getStatusCode());
+        assertEquals("Test", dto.getBody().getNome());
     }
 
     @Test

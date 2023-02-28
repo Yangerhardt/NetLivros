@@ -43,13 +43,13 @@ public class LivroController {
     }
 
     @PostMapping("/{autorId}")
-    public ResponseEntity<LivroDTO> create (@PathVariable Long autorId, @RequestBody LivroDTO livro) {
-        return LivroService.save(autorId, livro);
+    public ResponseEntity<LivroDTO> create (@PathVariable Long autorId, @RequestBody LivroDTO livroDTO) {
+        return LivroService.save(autorId, livroDTO);
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<LivroDTO> update (@PathVariable Long id, @RequestBody LivroDTO livro) {
-        return LivroService.update(id, livro);
+    public ResponseEntity<LivroDTO> update (@PathVariable Long id, @RequestBody LivroDTO livroDTO) {
+        return LivroService.update(id, livroDTO);
     }
 
     @DeleteMapping("/{id}")

@@ -25,8 +25,7 @@ class LivroServiceTest {
     private AutorRepository autorRepository;
     @Mock
     private LivroRepository livroRepository;
-    @Mock
-    private AutorDTO autorDTO;
+
 
     @BeforeEach
     void setUp() {
