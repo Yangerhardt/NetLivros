@@ -2,6 +2,7 @@ package com.example.NetLivros.mapper;
 
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.example.NetLivros.model.Autor;
@@ -14,11 +15,9 @@ import com.example.NetLivros.service.AutorService;
 public class LivroMapper {
 
 	private final AutorService service;
-	private final AutorMapper mapper;
 
-	public LivroMapper(AutorService service, AutorMapper mapper) {
+	public LivroMapper(AutorService service) {
 		this.service = service;
-		this.mapper = mapper;
 	}
 
 	public List<LivroDTO> toLivroDTOList(List<Livro> livros) {
@@ -39,7 +38,12 @@ public class LivroMapper {
 		livro.setGenero(livroDTO.getGenero());
 		livro.setEditora(livroDTO.getEditora());
 		AutorDTO autorDTO = service.findById(livroDTO.getAutorId());
-		Autor autor = mapper.toAutor(autorDTO);
+		Autor autor = new Autor();
+		BeanUtils.copyProperties(autorDTO, autor);
+		
+		List<Livro> livros = autor.getLivros();
+		
+		autor.setLivros(livros);
 
 		livro.setAutor(autor);
 

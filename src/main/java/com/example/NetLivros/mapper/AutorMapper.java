@@ -1,20 +1,21 @@
 package com.example.NetLivros.mapper;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.Livro;
 import com.example.NetLivros.model.dto.AutorDTO;
+import com.example.NetLivros.model.dto.LivroDTO;
 
 @Component
 public class AutorMapper {
 
-	private LivroMapper mapper;
-
 	public List<AutorDTO> toAutorDTOList(List<Autor> autors) {
-		return autors.stream().map(l -> new AutorDTO(l)).toList();
+		return autors.stream().map(livro -> new AutorDTO(livro)).toList();
 	}
 
 	public AutorDTO toAutorDTO(Autor autor) {
@@ -26,10 +27,26 @@ public class AutorMapper {
 		Autor autor = new Autor();
 		autor.setId(autorDTO.getId());
 		autor.setNome(autorDTO.getNome());
-		List<Livro> livros = autorDTO.getLivrosDTO().stream().map(livroDTO -> mapper.toLivro(livroDTO)).toList();
-		autor.setLivros(livros);
+		if (autorDTO.getLivrosDTO() != null) {
+			List<Livro> livros = autorDTO.getLivrosDTO().stream().map(livroDTO -> {
+				Livro livro = new Livro();
+				BeanUtils.copyProperties(livroDTO, livro);
+				livro.setAutor(autor);
+				return livro;
+
+			}).toList();
+			autor.setLivros(livros);
+
+		}
 
 		return autor;
+	}
+	
+	public static List<LivroDTO> verifyngAndParseToLivrosDTO(Autor autor) {
+		if (autor.getLivros() != null) {
+			return autor.getLivros().stream().map(livro -> new LivroDTO(livro)).toList();
+		}
+		return Arrays.asList();
 	}
 
 }

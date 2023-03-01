@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.NetLivros.model.dto.LivroDTO;
@@ -34,6 +35,12 @@ public class LivroController {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.findAll(titulo, numeroDePaginas, preco, genero, editora));
 	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<LivroDTO> readById(@PathVariable Long id) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(service.findById(id));
+	}
 
 	@PostMapping("/{autorId}")
 	public ResponseEntity<LivroDTO> create(@PathVariable Long autorId, @RequestBody LivroDTO livroDTO) {
@@ -46,9 +53,9 @@ public class LivroController {
 	}
 
 	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
 		service.deleteById(id);
-		ResponseEntity.status(HttpStatus.NO_CONTENT);
 	}
 
 }

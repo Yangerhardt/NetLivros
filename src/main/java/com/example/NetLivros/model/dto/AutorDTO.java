@@ -2,11 +2,9 @@ package com.example.NetLivros.model.dto;
 
 import java.util.List;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
+import com.example.NetLivros.mapper.AutorMapper;
 import com.example.NetLivros.model.Autor;
 
 public class AutorDTO {
@@ -15,16 +13,15 @@ public class AutorDTO {
 	@NotBlank
 	private String nome;
 	private List<LivroDTO> livrosDTO;
-	
-	
 
 	public AutorDTO(Autor autor) {
-		super();
 		this.id = autor.getId();
 		this.nome = autor.getNome();
-		this.livrosDTO = autor.getLivros().stream().map(livro -> new LivroDTO(livro)).toList();
+		this.livrosDTO = AutorMapper.verifyngAndParseToLivrosDTO(autor);
 	}
+
 	
+
 	public AutorDTO() {
 	}
 
