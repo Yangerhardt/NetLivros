@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Entity
 @Data
 public class Autor {
 
@@ -20,7 +21,7 @@ public class Autor {
     @NotNull @NotEmpty
     private String nome;
     @JsonIgnore
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Livro> livros;
 
     public Autor() {

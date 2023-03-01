@@ -1,5 +1,6 @@
 package com.example.NetLivros.service;
 
+import com.example.NetLivros.mapper.AutorMapper;
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.repository.AutorRepository;
@@ -22,11 +23,13 @@ class AutorServiceTest {
 
     @Mock
     private AutorRepository repository;
+    @Mock
+    private AutorMapper autorMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        this.service = new AutorService(repository);
+        this.service = new AutorService(repository, autorMapper);
     }
 
     @Test

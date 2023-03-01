@@ -25,19 +25,18 @@ public class Livro {
     private Integer numeroDePaginas;
     @NotNull
     private Double preco;
-    @Enumerated(EnumType.STRING)
+    @NotNull
     private String genero;
     @NotEmpty @NotNull
     private String editora;
     @ManyToOne
     private Autor autor;
 
-    public Livro(String titulo, Integer numeroDePaginas, Double preco, String genero, String editora, Autor autor) {
+    public Livro(String titulo, Integer numeroDePaginas, Double preco, String genero, String editora) {
         this.titulo = titulo;
         this.numeroDePaginas = numeroDePaginas;
         this.preco = preco;
         this.genero = genero;
         this.editora = editora;
-        this.autor = autor;
     }
 }
