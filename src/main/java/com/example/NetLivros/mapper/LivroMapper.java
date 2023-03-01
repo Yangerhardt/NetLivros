@@ -6,16 +6,19 @@ import org.springframework.stereotype.Component;
 
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.Livro;
+import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.model.dto.LivroDTO;
-import com.example.NetLivros.repository.AutorRepository;
+import com.example.NetLivros.service.AutorService;
 
 @Component
 public class LivroMapper {
 
-	private final AutorRepository repository;
+	private final AutorService service;
+	private final AutorMapper mapper;
 
-	public LivroMapper(AutorRepository repository) {
-		this.repository = repository;
+	public LivroMapper(AutorService service, AutorMapper mapper) {
+		this.service = service;
+		this.mapper = mapper;
 	}
 
 	public List<LivroDTO> toLivroDTOList(List<Livro> livros) {
@@ -35,8 +38,9 @@ public class LivroMapper {
 		livro.setPreco(livroDTO.getPreco());
 		livro.setGenero(livroDTO.getGenero());
 		livro.setEditora(livroDTO.getEditora());
-		Autor autor = repository.findById(livroDTO.getAutorId())
-				.orElseThrow(() -> new RuntimeException("Autor não encontrado!"));
+		AutorDTO autorDTO = service.findById(livroDTO.getAutorId());
+		Autor autor = mapper.toAutor(autorDTO);
+
 		livro.setAutor(autor);
 
 		return livro;

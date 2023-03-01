@@ -23,38 +23,37 @@ public class AutorService {
 		this.mapper = mapper;
 	}
 
-	public ResponseEntity<AutorDTO> save(AutorDTO autorDTO) {
+	public AutorDTO save(AutorDTO autorDTO) {
 		Autor autor = mapper.toAutor(autorDTO);
 		autorRepository.save(autor);
 		autorDTO = mapper.toAutorDTO(autor);
-		return ResponseEntity.status(HttpStatus.CREATED).body(autorDTO);
+		return autorDTO;
 	}
 
-	public ResponseEntity<List<AutorDTO>> findAll() {
+	public List<AutorDTO> findAll() {
 		List<Autor> autores = autorRepository.findAll();
 		List<AutorDTO> autoresDTO = mapper.toAutorDTOList(autores);
 
-		return ResponseEntity.ok().body(autoresDTO);
+		return autoresDTO;
 	}
 
-	public ResponseEntity<AutorDTO> findById(Long id) {
+	public AutorDTO findById(Long id) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
 		AutorDTO autorDTO = mapper.toAutorDTO(autor);
-		return ResponseEntity.ok().body(autorDTO);
+		return autorDTO;
 	}
 
-	public ResponseEntity<AutorDTO> update(Long id, AutorDTO autorDTO) {
+	public AutorDTO update(Long id, AutorDTO autorDTO) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
 		autorDTO.setId(id);
 		autor = mapper.toAutor(autorDTO);
 		autorRepository.save(autor);
-		return ResponseEntity.ok().body(autorDTO);
+		return autorDTO;
 	}
 
-	public ResponseEntity<Void> delete(Long id) {
+	public void deleteById(Long id) {
 		Autor autor = autorRepository.findById(id).orElseThrow(RuntimeException::new);
 
 		autorRepository.delete(autor);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

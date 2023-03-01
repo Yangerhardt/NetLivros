@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,35 +23,34 @@ import com.example.NetLivros.service.AutorService;
 public class AutorController {
 
 	private final AutorService service;
-	
-	
-	
-    public AutorController(AutorService service) {
+
+	public AutorController(AutorService service) {
 		this.service = service;
 	}
 
 	@GetMapping
-    public ResponseEntity<List<AutorDTO>> read() {
-        return service.findAll();
-    }
+	public ResponseEntity<List<AutorDTO>> read() {
+		return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
-        return service.findById(id);
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
+		return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
+	}
 
-    @PostMapping
-    public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
-        return service.save(autor);
-    }
+	@PostMapping
+	public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(autor));
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AutorDTO> update(@Valid @PathVariable Long id, @RequestBody AutorDTO autor) {
-        return service.update(id, autor);
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<AutorDTO> update(@Valid @PathVariable Long id, @RequestBody AutorDTO autor) {
+		return ResponseEntity.status(HttpStatus.OK).body(service.update(id, autor));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return service.delete(id);
-    }
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Long id) {
+		service.deleteById(id);
+		ResponseEntity.status(HttpStatus.NO_CONTENT);
+	}
 }
