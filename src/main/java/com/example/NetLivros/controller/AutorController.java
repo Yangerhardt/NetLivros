@@ -22,7 +22,7 @@ import com.example.NetLivros.service.AutorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api("Api de Autores")
+@Api(value = "Api de Autores")
 @RestController
 @RequestMapping("/api/autores")
 public class AutorController {

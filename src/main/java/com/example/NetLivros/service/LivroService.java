@@ -81,7 +81,7 @@ public class LivroService {
 	}
 
 	public void deleteById(Long id) {
-
+		livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado!"));
 		logger.info("Deletando Livro Por ID no Banco de Dados");
 		livroRepository.deleteById(id);
 	}

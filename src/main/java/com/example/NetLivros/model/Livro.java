@@ -7,16 +7,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.example.NetLivros.model.dto.LivroDTO;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@Entity
 public class Livro {
 
 	@Id

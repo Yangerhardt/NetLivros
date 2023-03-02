@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import com.example.NetLivros.exception.ExceptionResponse;
 import com.example.NetLivros.exception.ResourceAlreadyExistsException;
 import com.example.NetLivros.exception.ResourceNotFoundException;
+import com.example.NetLivros.exception.ResourceNotValidException;
 
 @ControllerAdvice
 @RestController
@@ -44,6 +45,14 @@ public class CustomizeExceptionHandler {
 				ex.getMessage(), req.getDescription(false));
 		logger.error(ex.getMessage());
 		return new ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.CONFLICT);
+	}
+	
+	@ExceptionHandler(ResourceNotValidException.class)
+	public final ResponseEntity<ExceptionResponse> handleResourceNotValidException(Exception ex, WebRequest req) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse("Resource Not Valid Exception", new Date(),
+				ex.getMessage(), req.getDescription(false));
+		logger.error(ex.getMessage());
+		return new ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 }
