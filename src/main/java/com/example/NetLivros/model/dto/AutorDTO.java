@@ -7,6 +7,13 @@ import javax.validation.constraints.NotBlank;
 import com.example.NetLivros.mapper.AutorMapper;
 import com.example.NetLivros.model.Autor;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AutorDTO {
 
 	private Long id;
@@ -21,9 +28,6 @@ public class AutorDTO {
 	}
 
 	
-
-	public AutorDTO() {
-	}
 
 	public Long getId() {
 		return id;

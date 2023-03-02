@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.NetLivros.model.dto.LivroDTO;
 import com.example.NetLivros.service.LivroService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api("Api de Livros")
 @RestController
 @RequestMapping("/api/livros")
 public class LivroController {
@@ -29,30 +33,34 @@ public class LivroController {
 	}
 
 	@GetMapping
+	@ApiOperation("Obter lista de livros")
 	public ResponseEntity<List<LivroDTO>> readAll(@RequestParam(required = false) String titulo,
 			@RequestParam(required = false) Integer numeroDePaginas, @RequestParam(required = false) Double preco,
 			@RequestParam(required = false) String genero, @RequestParam(required = false) String editora) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.findAll(titulo, numeroDePaginas, preco, genero, editora));
 	}
-	
+
 	@GetMapping("/{id}")
+	@ApiOperation("Obter livro por id")
 	public ResponseEntity<LivroDTO> readById(@PathVariable Long id) {
-		return ResponseEntity.status(HttpStatus.OK)
-				.body(service.findById(id));
+		return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
 	}
 
 	@PostMapping("/{autorId}")
+	@ApiOperation("Cria novo livro, relacionado a um autor")
 	public ResponseEntity<LivroDTO> create(@PathVariable Long autorId, @RequestBody LivroDTO livroDTO) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(autorId, livroDTO));
 	}
 
 	@PutMapping("/{id}")
+	@ApiOperation("Atualiza livro existente")
 	public ResponseEntity<LivroDTO> update(@PathVariable Long id, @RequestBody LivroDTO livroDTO) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.update(id, livroDTO));
 	}
 
 	@DeleteMapping("/{id}")
+	@ApiOperation("Deleta livro existente")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
 		service.deleteById(id);

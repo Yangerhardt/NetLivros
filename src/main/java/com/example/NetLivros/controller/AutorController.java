@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.service.AutorService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api("Api de Autores")
 @RestController
 @RequestMapping("/api/autores")
 public class AutorController {
@@ -30,28 +34,33 @@ public class AutorController {
 	}
 
 	@GetMapping
+	@ApiOperation("Obter lista de autores")
 	public ResponseEntity<List<AutorDTO>> read() {
 		return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
 	}
 
 	@GetMapping("/{id}")
+	@ApiOperation("Obter autor por id")
 	public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
 	}
 
 	@PostMapping
+	@ApiOperation("Cria novo autor")
 	public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(autor));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<AutorDTO> update(@Valid @PathVariable Long id, @RequestBody AutorDTO autor) {
+	@ApiOperation("Atualiza autor existente")
+	public ResponseEntity<AutorDTO> update(@PathVariable Long id, @RequestBody @Valid AutorDTO autor) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.update(id, autor));
 	}
 
 	@DeleteMapping("/{id}")
+	@ApiOperation("Deleta autor existente")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id) {
+	public void deleteById(@PathVariable Long id) {
 		service.deleteById(id);
 	}
 }
