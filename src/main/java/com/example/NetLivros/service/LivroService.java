@@ -7,6 +7,7 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.stereotype.Service;
 
+import com.example.NetLivros.exception.ResourceAlreadyExistsException;
 import com.example.NetLivros.exception.ResourceNotFoundException;
 import com.example.NetLivros.mapper.LivroMapper;
 import com.example.NetLivros.model.Autor;
@@ -28,6 +29,9 @@ public class LivroService {
 	private final LivroMapper mapper;
 
 	public LivroDTO save(Long autorId, LivroDTO livroDTO) {
+		if(livroRepository.existsByTitulo(livroDTO.getTitulo())) {
+			throw new ResourceAlreadyExistsException("Livro já cadastrado!");
+		}
 		livroDTO.setAutorId(autorId);
 		Livro livro = mapper.toLivro(livroDTO);
 		Autor autor = autorRepository.findById(autorId)
