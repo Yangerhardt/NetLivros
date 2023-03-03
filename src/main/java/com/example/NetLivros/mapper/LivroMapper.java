@@ -1,6 +1,7 @@
 package com.example.NetLivros.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class LivroMapper {
 	}
 
 	public List<LivroDTO> toLivroDTOList(List<Livro> livros) {
-		return livros.stream().map(l -> new LivroDTO(l)).toList();
+		return livros.stream().map(l -> new LivroDTO(l)).collect(Collectors.toList());
 	}
 
 	public LivroDTO toLivroDTO(Livro livro) {

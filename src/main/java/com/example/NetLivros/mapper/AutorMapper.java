@@ -3,6 +3,7 @@ package com.example.NetLivros.mapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import com.example.NetLivros.model.dto.LivroDTO;
 public class AutorMapper {
 
 	public List<AutorDTO> toAutorDTOList(List<Autor> autors) {
-		return autors.stream().map(livro -> new AutorDTO(livro)).toList();
+		return autors.stream().map(livro -> new AutorDTO(livro)).collect(Collectors.toList());
 	}
 
 	public AutorDTO toAutorDTO(Autor autor) {
@@ -36,7 +37,7 @@ public class AutorMapper {
 				livro.setAutor(autor);
 				return livro;
 
-			}).toList();
+			}).collect(Collectors.toList());
 			autor.setLivros(livros);
 
 		}
@@ -46,7 +47,7 @@ public class AutorMapper {
 	
 	public static List<LivroDTO> verifyngAndParseToLivrosDTO(Autor autor) {
 		if (autor.getLivros() != null) {
-			return autor.getLivros().stream().map(livro -> new LivroDTO(livro)).toList();
+			return autor.getLivros().stream().map(livro -> new LivroDTO(livro)).collect(Collectors.toList());
 		}
 		return Arrays.asList();
 	}
