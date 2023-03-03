@@ -1,115 +1,139 @@
 package com.example.NetLivros.service;
 
+import static com.example.NetLivros.mock.MocksAutor.AUTORES;
+import static com.example.NetLivros.mock.MocksAutor.AUTORES_DTO;
+import static com.example.NetLivros.mock.MocksAutor.AUTOR_1;
+import static com.example.NetLivros.mock.MocksAutor.AUTOR_DTO_1;
+import static com.example.NetLivros.mock.MocksAutor.AUTOR_DTO_2;
+import static com.example.NetLivros.mock.MocksAutor.AUTOR_DTO_3;
+import static com.example.NetLivros.mock.MocksAutor.INVALID_AUTOR;
+import static com.example.NetLivros.mock.MocksAutor.INVALID_AUTOR_DTO;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.example.NetLivros.exception.ResourceNotFoundException;
+import com.example.NetLivros.exception.ResourceNotValidException;
 import com.example.NetLivros.mapper.AutorMapper;
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.dto.AutorDTO;
 import com.example.NetLivros.repository.AutorRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+@ExtendWith(MockitoExtension.class)
 class AutorServiceTest {
 
-    private AutorService service;
+	@InjectMocks
+	private AutorService service;
+	@Mock
+	private AutorRepository repository;
+	@Mock
+	private AutorMapper mapper;
 
-    @Mock
-    private AutorRepository repository;
-    @Mock
-    private AutorMapper autorMapper;
+	@Test
+	@DisplayName("Deveria salvar autor sem lançar exceção")
+	void testSave() {
+		when(repository.save(any(Autor.class))).thenReturn(AUTOR_1);
+		when(mapper.toAutor(any())).thenReturn(AUTOR_1);
+		when(mapper.toAutorDTO(any())).thenReturn(AUTOR_DTO_1);
+		
+		AutorDTO savedAutor = service.save(AUTOR_DTO_1);
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        this.service = new AutorService(repository, autorMapper);
-    }
+		assertThat(savedAutor).isEqualTo(AUTOR_DTO_1);
+		
+	}
 
-    @Test
-    void deveriaRetornarUmaExcecaoQuandoOIdNaoExistir() {
-        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> service.findById(Mockito.any()));
-    }
+	@Test
+	@DisplayName("Deveria lançar exceção ao salvar autor com argumentos invalidos")
+	void testSave_InvalidAutor() {
 
-    @Test
-    void deveriaCadastrarUmNovoAutorNoBancoDeDados() {
-        Autor autor = autor();
-        AutorDTO autorDTO = new AutorDTO(autor);
+		when(repository.save(INVALID_AUTOR)).thenThrow(ResourceNotValidException.class);
+		lenient().when(mapper.toAutor(any())).thenReturn(INVALID_AUTOR);
+		lenient().when(mapper.toAutorDTO(any())).thenReturn(INVALID_AUTOR_DTO);
 
-        Mockito.when(repository.save(Mockito.any())).thenReturn(autor);
-        ResponseEntity<AutorDTO> dto = service.save(autorDTO);
-        assertNotNull(autor);
-        assertEquals(HttpStatus.CREATED, dto.getStatusCode());
-        assertEquals("Test", dto.getBody().getNome());
-    }
+		assertThatThrownBy(() -> service.save(INVALID_AUTOR_DTO)).isInstanceOf(ResourceNotValidException.class);
 
-    @Test
-    void deveriaRetornarTodosOsAutoresCadastrados() {
-        List<Autor> autores = autores();
-        Mockito.when(repository.findAll()).thenReturn(autores);
-        List<AutorDTO> all = service.findAll();
+	}
 
-        assertFalse(all.isEmpty());
-        assertEquals(1, all.size());
-        assertEquals("Test", all.get(0).getNome());
+	@DisplayName("Deveria listar autores sem lançar exceção")
+	@Test
+	void testFindAll() {
+		when(repository.findAll()).thenReturn(AUTORES);
+		when(mapper.toAutorDTOList(any())).thenReturn(AUTORES_DTO);
+		
+		List<AutorDTO> listAutores = service.findAll();
+		
+		assertThat(listAutores).isNotNull();
+		assertThat(listAutores).hasSize(3);
+		assertThat(listAutores.get(0)).isEqualTo(AUTOR_DTO_1);
+		assertThat(listAutores.get(1)).isEqualTo(AUTOR_DTO_2);
+		assertThat(listAutores.get(2)).isEqualTo(AUTOR_DTO_3);
+	}
 
-    }
-    @Test
-    void deveriaRetornarVazioQuandoNaoHaAutoresCadastrados() {
-        List<AutorDTO> all = service.findAll();
-        assertTrue(all.isEmpty());
-    }
+	@DisplayName("Deveria buscar um autor sem lançar exceção")
+	@Test
+	void testFindById() {
+		when(repository.findById(anyLong())).thenReturn(Optional.of(AUTOR_1));
+		when(mapper.toAutorDTO(any())).thenReturn(AUTOR_DTO_1);
+		
+		AutorDTO autorDTO = service.findById(1L);
+		
+		assertThat(autorDTO).isEqualTo(AUTOR_DTO_1);
 
-    @Test
-    void deveriaRetornarUmAutorEspecificoQueFoiPassadoComoParametroDeId() {
-        Autor autor = autor();
+		
+		
+	}
 
-        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
-        ResponseEntity<AutorDTO> autorById = service.findById(1L);
-        assertNotNull(autorById);
-        assertEquals(HttpStatus.OK, autorById.getStatusCode());
-        assertEquals("Test", autorById.getBody().getNome());
-    }
+	@DisplayName("Deveria lançar exceção ao buscar um autor inexistente ")
+	@Test
+	void testFindById_AutorNotFound() {
+		when(repository.findById(anyLong())).thenThrow(ResourceNotFoundException.class);
 
-    @Test
-    void deveriaAtualizarUmAutorNoBancoDeDados() {
-        Autor autor = autor();
-        Autor novoAutor = new Autor("Novo");
+		assertThatThrownBy(() -> service.findById(1L)).isInstanceOf(ResourceNotFoundException.class);
+	}
 
-        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
-        ResponseEntity<AutorDTO> update = AutorService.update(1L, novoAutor);
-        assertNotNull(update);
-        assertEquals(HttpStatus.OK, update.getStatusCode());
-        assertEquals("Novo", update.getBody().getNome());
-    }
+	@DisplayName("Deveria salvar autor sem lançar exceção")
+	@Test
+	void testUpdate() {
+		when(repository.findById(anyLong())).thenReturn(Optional.of(AUTOR_1));
+		when(repository.save(any(Autor.class))).thenReturn(AUTOR_1);
+		when(mapper.toAutor(any())).thenReturn(AUTOR_1);
+		
+		AUTOR_DTO_1.setNome("Updated Autor");
+		AutorDTO updatedAutor = service.update(1L,AUTOR_DTO_1);
 
-    @Test
-    void deveriaDeletarUmAutor() {
-        Autor autor = autor();
+		assertThat(updatedAutor).isEqualTo(AUTOR_DTO_1);
+		assertThat(updatedAutor.getNome()).isEqualTo("Updated Autor");
+	}
 
-        Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(autor));
-        ResponseEntity<Autor> delete = service.delete(1L);
-        assertNotNull(delete);
-        assertEquals(HttpStatus.NO_CONTENT, delete.getStatusCode());
-    }
+	@DisplayName("Deveria deletar autor sem lançar exceção")
+	@Test
+	void testDeleteById() {
+		when(repository.findById(anyLong())).thenReturn(Optional.of(AUTOR_1));
+		
+		assertDoesNotThrow(() -> service.deleteById(1L));
 
-    private List<Autor> autores() {
-       List<Autor> autores = new ArrayList<>();
-       autores.add(autor());
-       return autores;
-    }
+	}
 
-    private Autor autor() {
-        Autor autor = new Autor();
-        autor.setId(1L);
-        autor.setNome("Test");
-        return autor;
-    }
+	@DisplayName("Deveria lançar exceção ao tentar deletar autor inexistente")
+	@Test
+	void testDeleteById_AutorNotFound() {
+		when(repository.findById(anyLong())).thenThrow(ResourceNotFoundException.class);
+		
+		assertThatThrownBy(() -> service.deleteById(1L)).isInstanceOf(ResourceNotFoundException.class);
+		
+	}
 }

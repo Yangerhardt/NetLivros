@@ -1,129 +1,97 @@
 package com.example.NetLivros.service;
 
-import com.example.NetLivros.exceptions.RecursoNaoEncontradoException;
+import java.util.List;
+
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
+import org.springframework.stereotype.Service;
+
+import com.example.NetLivros.exception.ResourceAlreadyExistsException;
+import com.example.NetLivros.exception.ResourceNotFoundException;
 import com.example.NetLivros.mapper.LivroMapper;
 import com.example.NetLivros.model.Autor;
 import com.example.NetLivros.model.Livro;
 import com.example.NetLivros.model.dto.LivroDTO;
 import com.example.NetLivros.repository.AutorRepository;
 import com.example.NetLivros.repository.LivroRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
+@RequiredArgsConstructor
 @Service
 public class LivroService {
 
-    public static LivroRepository livroRepository;
-    public static AutorRepository autorRepository;
-    public static LivroMapper mapper = new LivroMapper(autorRepository, livroRepository);
+	private final AutorRepository autorRepository;
+	private final LivroRepository livroRepository;
+	private final LivroMapper mapper;
 
-    public LivroService(LivroRepository livroRepository, AutorRepository autorRepository, LivroMapper mapper) {
-        LivroService.livroRepository = livroRepository;
-        LivroService.autorRepository = autorRepository;
-        LivroMapper.mapper = mapper;
-    }
+	public LivroDTO save(Long autorId, LivroDTO livroDTO) {
+		if(livroRepository.existsByTitulo(livroDTO.getTitulo())) {
+			throw new ResourceAlreadyExistsException("Livro já cadastrado!");
+		}
+		livroDTO.setAutorId(autorId);
+		Livro livro = mapper.toLivro(livroDTO);
+		Autor autor = autorRepository.findById(autorId)
+				.orElseThrow(() -> new ResourceNotFoundException("Autor não Encontrado"));
+		livro.setAutor(autor);
 
-    public static ResponseEntity<LivroDTO> save (@Valid Long autorId, LivroDTO livroDTO) {
-        Autor autor = autorRepository.findById(autorId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Autor não encontrado"));
+		livroRepository.save(livro);
 
-        Livro livro = mapper.toLivro(livroDTO);
-        livroRepository.save(livro);
-        livroDTO = mapper.toLivroDTO(livro);
+		livroDTO = mapper.toLivroDTO(livro);
+		log.info("Salvando Livro no Banco de Dados");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(livroDTO);
-    }
+		return livroDTO;
+	}
 
-    public static ResponseEntity<List<LivroDTO>> findAll(String titulo, Integer numeroDePaginas, Double preco, String genero,
-                                                         String editora) {
+	public List<LivroDTO> findAll(String titulo, Integer numeroDePaginas, Double preco, String genero, String editora) {
 
-        Livro livro = new Livro(titulo, numeroDePaginas, preco, genero, editora);
-        Example<Livro> example = Example.of(livro, ExampleMatcher.matching().withIgnoreCase().withIgnoreNullValues()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING));
-        List<Livro> livros = livroRepository.findAll(example);
-        List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
-        return ResponseEntity.ok().body(livrosDTO);
-    }
+		Livro livro = new Livro(titulo, numeroDePaginas, preco, genero, editora);
+		Example<Livro> example = Example.of(livro, ExampleMatcher.matching().withIgnoreCase().withIgnoreNullValues()
+				.withStringMatcher(StringMatcher.CONTAINING));
+		List<Livro> livros = livroRepository.findAll(example);
+		List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
+		log.info("Lendo Livros do Banco de Dados");
 
-    public static ResponseEntity<LivroDTO> findById (Long id) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-        LivroDTO livroDTO = mapper.toLivroDTO(livro);
-        return ResponseEntity.ok().body(livroDTO);
-    }
+		return livrosDTO;
+	}
 
-    public static ResponseEntity<List<LivroDTO>> findByAutor (String nomeAutor) {
-        Autor autor = autorRepository.findByNome(nomeAutor);
-        List<Livro> livros = autor.getLivros();
-        List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
-        return ResponseEntity.ok().body(livrosDTO);
-    }
+	public List<LivroDTO> findAllByPreco(Double min, Double max) {
 
-    public static ResponseEntity<List<LivroDTO>> findByGenero (String genero) {
-        List<Livro> livros = livroRepository.findAllByGenero(genero)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Genero não encontrado."));
-        List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
+		List<Livro> livros = livroRepository.findByPrecoBetween(min,max);
+		List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
+		log.info("Lendo Livros por Preços do Banco de Dados");
 
-        return ResponseEntity.ok().body(livrosDTO);
-    }
+		return livrosDTO;
+	}
 
-    public static ResponseEntity<List<LivroDTO>> findByEditora (String editora) {
-        List<Livro> livros = livroRepository.findAllByEditora(editora)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Editora não encontrada."));
-        List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
+	
+	public LivroDTO findById(Long id) {
+		Livro livro = livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado!"));
+		LivroDTO livroDTO = mapper.toLivroDTO(livro);
+		log.info("Buscando Livro Por ID no Banco de Dados");
 
-        return ResponseEntity.ok().body(livrosDTO);
-    }
+		return livroDTO;
+	}
 
-    public static ResponseEntity<LivroDTO> findByTitulo (String titulo) {
-        Livro livro = livroRepository.findByTitulo(titulo)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
+	public LivroDTO update(Long id, LivroDTO livroDTO) {
+		Livro livro = livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado!"));
+		livroDTO.setAutorId(livro.getAutor().getId());
+		livroDTO.setId(id);
+		livro = mapper.toLivro(livroDTO);
+		livroRepository.save(livro);
 
-        LivroDTO livroDTO = mapper.toLivroDTO(livro);
-        return ResponseEntity.ok().body(livroDTO);
-    }
+		log.info("Atualizando Livro Por ID no Banco de Dados");
+		livroDTO = mapper.toLivroDTO(livro);
 
-    public static ResponseEntity<List<LivroDTO>> findByPreco (Double preco) {
-        List<Livro> livros = new ArrayList<>();
+		return livroDTO;
+	}
 
-        try {
-            livroRepository.findAll().forEach(livro -> {
-                if (livro.getPreco() <= preco) {
-                    livros.add(livro);
-                }
-            });
-        } catch (Exception e) {
-
-        }
-
-        List<LivroDTO> livrosDTO = mapper.toLivroDTOList(livros);
-
-        return ResponseEntity.ok().body(livrosDTO);
-    }
-
-    public static ResponseEntity<LivroDTO> update (Long id, LivroDTO livroDTO) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-
-        livroDTO.setAutorId(livro.getId());
-        Livro novoLivro = mapper.toLivro(livroDTO);
-        livroRepository.save(novoLivro);
-
-        return ResponseEntity.ok().body(livroDTO);
-    }
-
-    public static ResponseEntity<Void> delete(Long id) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado"));
-
-        livroRepository.deleteById(livro.getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+	public void deleteById(Long id) {
+		livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado!"));
+		log.info("Deletando Livro Por ID no Banco de Dados");
+		livroRepository.deleteById(id);
+	}
 }

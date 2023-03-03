@@ -1,61 +1,54 @@
 package com.example.NetLivros.mapper;
 
-import com.example.NetLivros.exceptions.RecursoNaoEncontradoException;
-import com.example.NetLivros.model.Autor;
-import com.example.NetLivros.model.Livro;
-import com.example.NetLivros.model.dto.LivroDTO;
-import com.example.NetLivros.repository.AutorRepository;
-import com.example.NetLivros.repository.LivroRepository;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.NetLivros.model.Autor;
+import com.example.NetLivros.model.Livro;
+import com.example.NetLivros.model.dto.AutorDTO;
+import com.example.NetLivros.model.dto.LivroDTO;
+import com.example.NetLivros.service.AutorService;
+
 
 @Component
 public class LivroMapper {
 
-    public static LivroMapper mapper;
-    private final AutorRepository repository;
-    private final LivroRepository livroRepository;
+	private final AutorService service;
 
-    public LivroMapper(AutorRepository repository, LivroRepository livroRepository) {
-        this.repository = repository;
-        this.livroRepository = livroRepository;
-    }
+	public LivroMapper(AutorService service) {
+		this.service = service;
+	}
 
-    public LivroDTO toLivroDTO(Livro livro) {
-        return new LivroDTO(livro);
-    }
+	public List<LivroDTO> toLivroDTOList(List<Livro> livros) {
+		return livros.stream().map(l -> new LivroDTO(l)).toList();
+	}
 
-    public List<LivroDTO> toLivroDTOList(List<Livro> livros) {
-        return livros.stream().map(LivroDTO::new).collect(Collectors.toList());
-    }
+	public LivroDTO toLivroDTO(Livro livro) {
+		LivroDTO dto = new LivroDTO(livro);
+		return dto;
+	}
 
-    public Livro toLivro(LivroDTO livroDTO) {
-        Livro livro = new Livro();
-        livro.setId(livroDTO.getId());
-        livro.setTitulo(livroDTO.getTitulo());
-        livro.setNumeroDePaginas(livroDTO.getNumeroDePaginas());
-        livro.setPreco(livroDTO.getPreco());
-        livro.setGenero(livroDTO.getGenero());
-        livro.setEditora(livroDTO.getEditora());
-        Autor autor = repository.findById(livroDTO.getAutorId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Autor não encontrado."));
-        livro.setAutor(autor);
+	public Livro toLivro(LivroDTO livroDTO) {
+		Livro livro = new Livro();
+		livro.setId(livroDTO.getId());
+		livro.setTitulo(livroDTO.getTitulo());
+		livro.setNumeroDePaginas(livroDTO.getNumeroDePaginas());
+		livro.setPreco(livroDTO.getPreco());
+		livro.setGenero(livroDTO.getGenero());
+		livro.setEditora(livroDTO.getEditora());
+		AutorDTO autorDTO = service.findById(livroDTO.getAutorId());
+		Autor autor = new Autor();
+		BeanUtils.copyProperties(autorDTO, autor);
+		
+		List<Livro> livros = autor.getLivros();
+		
+		autor.setLivros(livros);
 
-        return livro;
-    }
+		livro.setAutor(autor);
 
-    public List<LivroDTO> findByEspecificacao (LivroDTO dto, String entrada) {
-        List<Livro> livros = new ArrayList<>();
+		return livro;
+	}
 
-        livroRepository.findAll().forEach(livro -> {
-            if (livro.getEditora().equals(entrada)) {
-                livros.add(livro);
-            }
-        });
-
-        return mapper.toLivroDTOList(livros);
-    }
 }

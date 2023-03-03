@@ -1,30 +1,31 @@
 package com.example.NetLivros.model.dto;
 
-import com.example.NetLivros.model.Autor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import javax.validation.constraints.NotBlank;
+
+import com.example.NetLivros.mapper.AutorMapper;
+import com.example.NetLivros.model.Autor;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data 
 public class AutorDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String nome;
-    private List<LivroDTO> livrosDTO;
+	private Long id;
+	@NotBlank
+	private String nome;
+	private List<LivroDTO> livrosDTO;
 
-    public AutorDTO(Autor autor) {
-        this.id = autor.getId();
-        this.nome = autor.getNome();
-        this.livrosDTO = (autor.getLivros() != null)
-            ? autor.getLivros().stream().map(LivroDTO::new).collect(Collectors.toList())
-            : null;
-    }
+	public AutorDTO(Autor autor) {
+		this.id = autor.getId();
+		this.nome = autor.getNome();
+		this.livrosDTO = AutorMapper.verifyngAndParseToLivrosDTO(autor);
+	}
 }
