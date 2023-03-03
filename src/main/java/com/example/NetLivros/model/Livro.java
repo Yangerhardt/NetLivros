@@ -44,5 +44,4 @@ public class Livro {
 		this.genero = genero;
 		this.editora = editora;
 	}
-
 }

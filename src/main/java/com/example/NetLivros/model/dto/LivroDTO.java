@@ -39,6 +39,4 @@ public class LivroDTO {
 		this.editora = livro.getEditora();
 		this.autorId = livro.getAutor().getId();
 	}
-
-	
 }

@@ -61,4 +61,5 @@ public class AutorController {
 	public void deleteById(@PathVariable Long id) {
 		service.deleteById(id);
 	}
+
 }
