@@ -9,11 +9,13 @@ import com.example.NetLivros.model.Autor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data 
 public class AutorDTO {
 
 	private Long id;
@@ -26,31 +28,4 @@ public class AutorDTO {
 		this.nome = autor.getNome();
 		this.livrosDTO = AutorMapper.verifyngAndParseToLivrosDTO(autor);
 	}
-
-	
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public List<LivroDTO> getLivrosDTO() {
-		return livrosDTO;
-	}
-
-	public void setLivrosDTO(List<LivroDTO> livrosDTO) {
-		this.livrosDTO = livrosDTO;
-	}
-
 }

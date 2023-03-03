@@ -12,7 +12,6 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
 
 	Optional<Livro> findByTitulo(String titulo);
 
-	List<Livro> findAllByGenero(String genero);
-
-	List<Livro> findAllByEditora(String genero);
+	List<Livro> findByPrecoBetween(Double min, Double max);
+	
 }

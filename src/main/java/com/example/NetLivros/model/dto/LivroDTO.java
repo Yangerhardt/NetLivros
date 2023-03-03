@@ -7,15 +7,13 @@ import com.example.NetLivros.model.Livro;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Builder
+@Data
 public class LivroDTO {
 
 	private Long id;
@@ -42,60 +40,5 @@ public class LivroDTO {
 		this.autorId = livro.getAutor().getId();
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitulo() {
-		return titulo;
-	}
-
-	public void setTitulo(String titulo) {
-		this.titulo = titulo;
-	}
-
-	public Integer getNumeroDePaginas() {
-		return numeroDePaginas;
-	}
-
-	public void setNumeroDePaginas(Integer numeroDePaginas) {
-		this.numeroDePaginas = numeroDePaginas;
-	}
-
-	public Double getPreco() {
-		return preco;
-	}
-
-	public void setPreco(Double preco) {
-		this.preco = preco;
-	}
-
-	public String getGenero() {
-		return genero;
-	}
-
-	public void setGenero(String genero) {
-		this.genero = genero;
-	}
-
-	public String getEditora() {
-		return editora;
-	}
-
-	public void setEditora(String editora) {
-		this.editora = editora;
-	}
-
-	public Long getAutorId() {
-		return autorId;
-	}
-
-	public void setAutorId(Long autorId) {
-		this.autorId = autorId;
-	}
-
+	
 }

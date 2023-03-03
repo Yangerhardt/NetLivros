@@ -21,7 +21,9 @@ import com.example.NetLivros.service.AutorService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Api(value = "Api de Autores")
 @RestController
 @RequestMapping("/api/autores")
@@ -29,30 +31,26 @@ public class AutorController {
 
 	private final AutorService service;
 
-	public AutorController(AutorService service) {
-		this.service = service;
-	}
-
 	@GetMapping
-	@ApiOperation("Obter lista de autores")
-	public ResponseEntity<List<AutorDTO>> read() {
+	@ApiOperation(value = "Obter lista de autores", response = AutorDTO.class)
+	public ResponseEntity<List<AutorDTO>> readAll() {
 		return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
 	}
 
 	@GetMapping("/{id}")
-	@ApiOperation("Obter autor por id")
+	@ApiOperation(value = "Obter autor por id", response = AutorDTO.class)
 	public ResponseEntity<AutorDTO> readById(@PathVariable Long id) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
 	}
 
 	@PostMapping
-	@ApiOperation("Cria novo autor")
+	@ApiOperation(value = "Cria novo autor", response = AutorDTO.class, notes = "Autor não pode ser nulo")
 	public ResponseEntity<AutorDTO> create(@RequestBody @Valid AutorDTO autor) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(autor));
 	}
 
 	@PutMapping("/{id}")
-	@ApiOperation("Atualiza autor existente")
+	@ApiOperation(value = "Atualiza autor existente", response = AutorDTO.class, notes = "Autor não pode ser nulo")
 	public ResponseEntity<AutorDTO> update(@PathVariable Long id, @RequestBody @Valid AutorDTO autor) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.update(id, autor));
 	}

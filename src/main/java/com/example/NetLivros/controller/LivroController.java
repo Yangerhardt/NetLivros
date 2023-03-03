@@ -20,7 +20,9 @@ import com.example.NetLivros.service.LivroService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Api("Api de Livros")
 @RestController
 @RequestMapping("/api/livros")
@@ -28,33 +30,36 @@ public class LivroController {
 
 	private final LivroService service;
 
-	public LivroController(LivroService service) {
-		this.service = service;
-	}
-
 	@GetMapping
-	@ApiOperation("Obter lista de livros")
+	@ApiOperation(value = "Obter lista de livros", response = LivroDTO.class)
 	public ResponseEntity<List<LivroDTO>> readAll(@RequestParam(required = false) String titulo,
 			@RequestParam(required = false) Integer numeroDePaginas, @RequestParam(required = false) Double preco,
 			@RequestParam(required = false) String genero, @RequestParam(required = false) String editora) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.findAll(titulo, numeroDePaginas, preco, genero, editora));
 	}
+	
+	@GetMapping("/preco")
+	@ApiOperation(value = "Obter lista de livros por preco", response = LivroDTO.class)
+	public ResponseEntity<List<LivroDTO>> readAllByPreco(@RequestParam(defaultValue = "0", required = false) Double min, @RequestParam Double max) {
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(service.findAllByPreco(min,max));
+	}
 
 	@GetMapping("/{id}")
-	@ApiOperation("Obter livro por id")
+	@ApiOperation(value = "Obter livro por id", response = LivroDTO.class)
 	public ResponseEntity<LivroDTO> readById(@PathVariable Long id) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
 	}
 
 	@PostMapping("/{autorId}")
-	@ApiOperation("Cria novo livro, relacionado a um autor")
+	@ApiOperation(value = "Cria novo livro, relacionado a um autor", response = LivroDTO.class, notes = "Livro não pode ser nulo")
 	public ResponseEntity<LivroDTO> create(@PathVariable Long autorId, @RequestBody LivroDTO livroDTO) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(autorId, livroDTO));
 	}
 
 	@PutMapping("/{id}")
-	@ApiOperation("Atualiza livro existente")
+	@ApiOperation(value = "Atualiza livro existente", response = LivroDTO.class, notes = "Livro não pode ser nulo")
 	public ResponseEntity<LivroDTO> update(@PathVariable Long id, @RequestBody LivroDTO livroDTO) {
 		return ResponseEntity.status(HttpStatus.OK).body(service.update(id, livroDTO));
 	}
@@ -62,7 +67,7 @@ public class LivroController {
 	@DeleteMapping("/{id}")
 	@ApiOperation("Deleta livro existente")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id) {
+	public void deleteById(@PathVariable Long id) {
 		service.deleteById(id);
 	}
 

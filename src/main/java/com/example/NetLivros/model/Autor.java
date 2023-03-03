@@ -13,16 +13,16 @@ import javax.persistence.OneToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @NoArgsConstructor
-@Getter
-@Setter
-@Builder
 @AllArgsConstructor
+@Data
+@Builder
+@Entity
 public class Autor {
 
 	@Id
@@ -34,29 +34,4 @@ public class Autor {
 	private List<Livro> livros;
 
 	
-	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public List<Livro> getLivros() {
-		return livros;
-	}
-
-	public void setLivros(List<Livro> livros) {
-		this.livros = livros;
-	}
-
 }
